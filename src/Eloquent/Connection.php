@@ -2,14 +2,15 @@
 
 namespace AmphiBee\Eloquent;
 
-use AmphiBee\Eloquent\Manager as Capsule;
-use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\Query\Expression;
-use Illuminate\Database\Query\Grammars\Grammar as QueryGrammar;
-use Illuminate\Database\Query\Processors\Processor;
-use Illuminate\Database\QueryException;
-use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Illuminate\Support\Arr;
+use Illuminate\Database\QueryException;
+use AmphiBee\Eloquent\Manager as Capsule;
+use Illuminate\Database\Query\Expression;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Query\Processors\Processor;
+use Illuminate\Database\Schema\Builder as SchemaBuilder;
+use Illuminate\Database\MultipleColumnsSelectedException;
+use Illuminate\Database\Query\Grammars\Grammar as QueryGrammar;
 
 /**
  * Connection Resolver
@@ -169,10 +170,37 @@ class Connection implements ConnectionInterface
 
         if ($result === false || $this->db->last_error) {
             error_log($this->db->last_error);
-            throw new QueryException($query, $bindings, new \Exception($this->db->last_error));
+            throw new QueryException($this->config['name'], $query, $bindings, new \Exception($this->db->last_error));
         }
 
         return $result;
+    }
+
+    /**
+     * Run a select statement and return the first column of the first row.
+     *
+     * @param  string  $query
+     * @param  array  $bindings
+     * @param  bool  $useReadPdo
+     * @return mixed
+     *
+     * @throws \Illuminate\Database\MultipleColumnsSelectedException
+     */
+    public function scalar($query, $bindings = [], $useReadPdo = true)
+    {
+        $record = $this->selectOne($query, $bindings, $useReadPdo);
+
+        if (is_null($record)) {
+            return null;
+        }
+
+        $record = (array) $record;
+
+        if (count($record) > 1) {
+            throw new MultipleColumnsSelectedException;
+        }
+
+        return reset($record);
     }
 
     /**
@@ -193,7 +221,7 @@ class Connection implements ConnectionInterface
 
         if ($result === false || $this->db->last_error) {
             error_log($this->db->last_error);
-            throw new QueryException($query, $bindings, new \Exception($this->db->last_error));
+            throw new QueryException($this->config['name'], $query, $bindings, new \Exception($this->db->last_error));
         }
 
         return $result;
@@ -367,7 +395,7 @@ class Connection implements ConnectionInterface
 
         if ($result === false || $this->db->last_error) {
             error_log($this->db->last_error);
-            throw new QueryException($new_query, $bindings, new \Exception($this->db->last_error));
+            throw new QueryException($this->config['name'], $new_query, $bindings, new \Exception($this->db->last_error));
         }
 
         return (array)$result;
@@ -443,7 +471,7 @@ class Connection implements ConnectionInterface
 
         if ($result === false || $this->db->last_error) {
             error_log($this->db->last_error);
-            throw new QueryException($new_query, $bindings, new \Exception($this->db->last_error));
+            throw new QueryException($this->config['name'], $new_query, $bindings, new \Exception($this->db->last_error));
         }
 
         return intval($result);
