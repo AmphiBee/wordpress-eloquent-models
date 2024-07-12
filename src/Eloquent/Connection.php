@@ -3,6 +3,7 @@
 namespace AmphiBee\Eloquent;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Database\QueryException;
 use AmphiBee\Eloquent\Manager as Capsule;
 use Illuminate\Database\Query\Expression;
@@ -22,7 +23,7 @@ use Illuminate\Database\Query\Grammars\Grammar as QueryGrammar;
 class Connection implements ConnectionInterface
 {
     public $db;
-    public $pdo;
+    public WpdbPdo $pdo;
 
     public $schemaGrammar;
 
@@ -809,12 +810,8 @@ class Connection implements ConnectionInterface
      * @param string $table_name
      * @return string
      */
-    public function prefixTable($table_name)
+    public function prefixTable($tableName)
     {
-        $prefix = $this->db->prefix ?: '';
-
-        return ($prefix && (strpos($table_name, $prefix) !== 0))
-                ? $prefix . $table_name
-                : $table_name;
+        return Str::start($tableName, $this->pdo->prefix($tableName));
     }
 }

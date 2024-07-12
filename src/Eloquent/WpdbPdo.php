@@ -15,7 +15,7 @@ class WpdbPdo
      * DB Instance
      */
     protected $db;
-    
+
     public function __construct($wpdb)
     {
         $this->db = $wpdb;
@@ -25,9 +25,13 @@ class WpdbPdo
     {
         return $this->db->insert_id;
     }
-    
-    public function prefix()
+
+    public function prefix(?string $tableName = null)
     {
-        return $this->db->prefix;
+        if (!$tableName) {
+            return $this->db->prefix;
+        }
+
+        return !in_array($tableName, $this->db->global_tables) ? $this->db->prefix : $this->db->base_prefix;
     }
 }
