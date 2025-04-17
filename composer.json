@@ -4,10 +4,10 @@
     "keywords": ["wordpress", "plugin", "orm", "eloquent", "sql"],
     "homepage": "https://github.com/AmphiBee/wp-eloquent",
     "require": {
-        "php": ">=7.2.5|>=7.3|>=8.0",
-        "illuminate/database": ">=9.0",
-        "illuminate/filesystem": ">=9.0",
-        "illuminate/support": ">=9.0",
+        "php": ">=8.0",
+        "illuminate/database": ">=11.0",
+        "illuminate/filesystem": ">=11.0",
+        "illuminate/support": ">=11.0",
         "thunderer/shortcode": "^0.7.3",
         "bordoni/phpass": "^0.3.5"
     },

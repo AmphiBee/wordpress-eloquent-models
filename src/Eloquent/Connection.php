@@ -10,6 +10,7 @@ use Illuminate\Database\Query\Processors\Processor;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Illuminate\Support\Arr;
+use Illuminate\Database\Connection as IlluminateConnection;
 
 /**
  * Connection Resolver
@@ -18,7 +19,7 @@ use Illuminate\Support\Arr;
  * @author AmphiBee <hello@amphibee.fr>
  * @author Thomas Georgel <thomas@hydrat.agency>
  */
-class Connection implements ConnectionInterface
+class Connection extends IlluminateConnection implements ConnectionInterface
 {
     public $db;
     public $pdo;
@@ -172,6 +173,29 @@ class Connection implements ConnectionInterface
         }
 
         return $result;
+    }
+
+    /**
+     * Run a select statement and return the first column of the first row.
+     *
+     * @param  string  $query
+     * @param  array  $bindings
+     * @param  bool  $useReadPdo
+     * @return mixed
+     *
+     * @throws \Illuminate\Database\MultipleColumnsSelectedException
+     */
+    public function scalar($query, $bindings = [], $useReadPdo = true)
+    {
+        $query = $this->bind_params($query, $bindings);
+
+        $result = $this->db->get_row($query, 'ARRAY_N');
+
+        if ($result === false || $this->db->last_error) {
+            throw new QueryException($query, $bindings, new \Exception($this->db->last_error));
+        }
+
+        return $result[0];
     }
 
     /**
@@ -546,15 +570,17 @@ class Connection implements ConnectionInterface
      *
      * @return void
      */
-    public function rollBack()
+    public function rollBack($toLevel = null)
     {
-        if ($this->transactionCount < 1) {
-            return;
-        }
-        $transaction = $this->unprepared("ROLLBACK;");
-        if (false !== $transaction) {
-            $this->transactionCount--;
-        }
+        parent::rollBack($toLevel);
+
+        // if ($this->transactionCount < 1) {
+        //     return;
+        // }
+        // $transaction = $this->unprepared("ROLLBACK;");
+        // if (false !== $transaction) {
+        //     $this->transactionCount--;
+        // }
     }
 
     /**
@@ -734,7 +760,7 @@ class Connection implements ConnectionInterface
 
     public function getQueryGrammar()
     {
-        return new QueryGrammar();
+        return new QueryGrammar($this);
     }
 
 
