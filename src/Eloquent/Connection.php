@@ -169,7 +169,7 @@ class Connection extends IlluminateConnection implements ConnectionInterface
         $result = $this->db->get_row($query);
 
         if ($result === false || $this->db->last_error) {
-            throw new QueryException($query, $bindings, new \Exception($this->db->last_error));
+            throw new QueryException($this->config['name'], $query, $bindings, new \Exception($this->db->last_error));
         }
 
         return $result;
@@ -192,7 +192,7 @@ class Connection extends IlluminateConnection implements ConnectionInterface
         $result = $this->db->get_row($query, 'ARRAY_N');
 
         if ($result === false || $this->db->last_error) {
-            throw new QueryException($query, $bindings, new \Exception($this->db->last_error));
+            throw new QueryException($this->config['name'], $query, $bindings, new \Exception($this->db->last_error));
         }
 
         return $result[0];
@@ -215,8 +215,7 @@ class Connection extends IlluminateConnection implements ConnectionInterface
         $result = $this->db->get_results($query);
 
         if ($result === false || $this->db->last_error) {
-            dd($query);
-            throw new QueryException($query, $bindings, new \Exception($this->db->last_error));
+            throw new QueryException($this->config['name'], $query, $bindings, new \Exception($this->db->last_error));
         }
 
         return $result;
@@ -389,7 +388,7 @@ class Connection extends IlluminateConnection implements ConnectionInterface
         $result = $this->db->query($new_query);
 
         if ($result === false || $this->db->last_error) {
-            throw new QueryException($new_query, $bindings, new \Exception($this->db->last_error));
+            throw new QueryException($this->config['name'], $new_query, $bindings, new \Exception($this->db->last_error));
         }
 
         return (array)$result;
@@ -464,7 +463,7 @@ class Connection extends IlluminateConnection implements ConnectionInterface
         $result = $this->db->query($new_query);
 
         if ($result === false || $this->db->last_error) {
-            throw new QueryException($new_query, $bindings, new \Exception($this->db->last_error));
+            throw new QueryException($this->config['name'], $new_query, $bindings, new \Exception($this->db->last_error));
         }
 
         return intval($result);
