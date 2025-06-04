@@ -142,6 +142,16 @@ class User extends Model implements Authenticatable, CanResetPassword
     }
 
     /**
+     * Get the name of the password attribute for the user.
+     *
+     * @return string
+     */
+    public function getAuthPasswordName()
+    {
+        return 'user_pass';
+    }
+
+    /**
      * Get the token value for the "remember me" session.
      *
      * @return string
