@@ -1,20 +1,19 @@
-WordPress Eloquent Models
+# WordPress Eloquent Models
 ===========================
 
-Le composant WordPress Eloquent Model est une boîte à outils complète fournissant un ORM et un générateur de schéma. Il prend en charge MySQL, Postgres, SQL Server et SQLite. Elle traduit les tables WordPress en [modèles compatibles avec Eloquent](https://laravel.com/docs/7.x/eloquent).
+The WordPress Eloquent Model component is a comprehensive toolkit providing an ORM and schema builder. It supports MySQL, Postgres, SQL Server and SQLite. It translates WordPress tables into [Eloquent-compatible models](https://laravel.com/docs/7.x/eloquent).
 
-La bibliothèque est idéale pour une utilisation avec Bedrock / Sage de Roots.
+The library is ideal for use with Roots' Bedrock / Sage.
 
-Plus besoin d'utiliser la vieille classe moisie WP_Query, on entre dans le monde du futur en produisant du code lisible et ré-utilisable ! Des fonctionnalités supplémentaires sont également disponibles pour une expérience d'utilisation personnalisée à WordPress.
+No more need to use the old moldy WP_Query class, we're entering the world of the future by producing readable and reusable code! Additional features are also available for a custom WordPress user experience.
 
+The library ensuring Eloquent compatibility, you can consult the [ORM documentation](https://laravel.com/docs/7.x/eloquent) if you're feeling a bit lost :)
 
-La librairie assurant la compatibilité avec Eloquent, vous pouvez consulter la [documentation de l'ORM](https://laravel.com/docs/7.x/eloquent) si vous êtes un peu perdu :)
-
-# Sommaire
+# Table of Contents
 
  - [Installation](#installation)
- - [Mise en place](#mise-en-place)
- - [Modèles supportés](#modèles-supportés)
+ - [Setup](#setup)
+ - [Supported Models](#supported-models)
     - [Posts](#posts)
     - [Comments](#comments)
     - [Terms](#terms)
@@ -22,40 +21,39 @@ La librairie assurant la compatibilité avec Eloquent, vous pouvez consulter la 
     - [Options](#options)
     - [Menus](#menus)
  - [Images](#images)
- - [Alias de champs](#alias-de-champs)
- - [Scope personnalisés](#scopes-personnalisés)
+ - [Field Aliases](#field-aliases)
+ - [Custom Scopes](#custom-scopes)
  - [Pagination](#pagination)
  - [Meta](#meta)
- - [Requête d'un Post à partir d'un champs personnalisé (Meta)](#requète-dun-post--partir-dun-champs-personnalisé-meta)
+ - [Querying a Post from a custom field (Meta)](#querying-a-post-from-a-custom-field-meta)
  - [Advanced Custom Fields](#advanced-custom-fields)
- - [Création de table](#creation-de-table)
- - [Requètes avancées](#requètes-avancées)
- - [Type de contenu personnalisés](#type-de-contenu-personnalisés)
- - [Modèles personnalisés](#modles-personnalisés)
-    - [Définition du modèle Eloquent](#définition-du-modèle-eloquent)
-    - [Requètes sur modèles personnalisés](#requètes-sur-modèles-personnalisés)
+ - [Table Creation](#table-creation)
+ - [Advanced Queries](#advanced-queries)
+ - [Custom Post Types](#custom-post-types)
+ - [Custom Models](#custom-models)
+    - [Eloquent Model Definition](#eloquent-model-definition)
+    - [Queries on Custom Models](#queries-on-custom-models)
  - [Shortcode](#shortcode)
- - [Logs des requêtes](#logs-des-requêtes)
-
+ - [Query Logs](#query-logs)
 
 ## Installation
 
-La méthode d'installation recommandée est [Composer](https://getcomposer.org/).
+The recommended installation method is [Composer](https://getcomposer.org/).
 
 ```
 composer require amphibee/wordpress-eloquent-models
 ```
 
-## Mise en place
+## Setup
 
-La connection à la base de données (via $wpdb) s'effectue au première appel d'un modèle Eloquent.
-Si vous avez besoin de récupérer l'instance de connection, lancer simplement le code suivant (privilégiez l'usage de `use`) :
+The database connection (via $wpdb) is made on the first call to an Eloquent model.
+If you need to retrieve the connection instance, simply run the following code (prefer using `use`):
 
 ```php
 AmphiBee\Eloquent\Database::instance();
 ```
 
-## Modèles supportés
+## Supported Models
 
 ### Posts
 
@@ -63,10 +61,10 @@ AmphiBee\Eloquent\Database::instance();
 
 use \AmphiBee\Eloquent\Model\Post;
 
-// récupération du post avec l'ID 1
+// retrieve the post with ID 1
 $post = Post::find(1);
 
-// Données en relations disponibles
+// Available related data
 $post->author;
 $post->comments;
 $post->terms;
@@ -78,13 +76,13 @@ $post->meta;
 
 ***Status***
 
-Par défaut, `Post` retourne l'ensemble des articles quelque soit leur status. Cela peut être modifié via un [scope local](https://laravel.com/docs/7.x/eloquent#query-scopes) `published` pour ne retourner que les articles publiés.
+By default, `Post` returns all articles regardless of their status. This can be modified via a [local scope](https://laravel.com/docs/7.x/eloquent#query-scopes) `published` to return only published articles.
 
 ```php
 Post::published()->get();
 ```
 
-Il est également possible de définir le statut en question via le [scope local](https://laravel.com/docs/7.x/eloquent#query-scopes#query-scopes) `status`.
+It's also possible to define the status in question via the [local scope](https://laravel.com/docs/7.x/eloquent#query-scopes#query-scopes) `status`.
 
 ```php
 Post::status('draft')->get();
@@ -92,7 +90,7 @@ Post::status('draft')->get();
 
 ***Post Types***
 
-Par défaut, `Post` retourne l'ensemble des types de contenu. Cea peut être surchargé via le [scope local](https://laravel.com/docs/7.x/eloquent#query-scopes#query-scopes) `type`.
+By default, `Post` returns all content types. This can be overridden via the [local scope](https://laravel.com/docs/7.x/eloquent#query-scopes#query-scopes) `type`.
 
 ```php
 Post::type('page')->get();
@@ -104,10 +102,10 @@ Post::type('page')->get();
 
 use \AmphiBee\Eloquent\Model\Comment;
 
-// récupère le commentaite ayant pour ID 12345
+// retrieve the comment with ID 12345
 $comment = Comment::find(12345);
 
-// Données en relation disponibles
+// Available related data
 $comment->post;
 $comment->author;
 $comment->meta
@@ -116,7 +114,7 @@ $comment->meta
 
 ### Terms
 
-Dans cette version `Term` est accessible en tant que modèle mais n'est accessible que par le biais d'article. Néanmoins, il suffit d'étendre `Term` pour l'appliquer aux autres types de contenus personnalisés.
+In this version `Term` is accessible as a model but is only accessible through articles. However, it's sufficient to extend `Term` to apply it to other custom content types.
 
 ```php
 $post->terms()->where('taxonomy', 'country');
@@ -128,37 +126,37 @@ $post->terms()->where('taxonomy', 'country');
 
 use \AmphiBee\Eloquent\Model\User;
 
-// Tous les utilisateurs
+// All users
 $users = User::get();
 
-// récupère l'utilisateur ayant pour ID 123
+// retrieve the user with ID 123
 $user = User::find(123);
 
 ```
 
 ### Options
 
-Dans WordPress, la récupération d'options s'effectue avec la fonction `get_option`. Avec Eloquent, pour se passer d'un chargement inutile du Core WordPress, vous pourrez utiliser la fonction `get` du modèle `Option`.
+In WordPress, option retrieval is done with the `get_option` function. With Eloquent, to avoid unnecessary loading of the WordPress Core, you can use the `get` function of the `Option` model.
 
 ```php
 $siteUrl = Option::get('siteurl');
 ```
 
-Vous pouvez également ajouter d'autres options :
+You can also add other options:
 
 ```php
-Option::add('foo', 'bar'); // stockée en tant que chaine de caractères
-Option::add('baz', ['one' => 'two']); // le tableau sera sérialisé
+Option::add('foo', 'bar'); // stored as a string
+Option::add('baz', ['one' => 'two']); // the array will be serialized
 ```
 
-Vous pouvez récupérez l'ensemble des options en tant que tableau (attention aux performances...) :
+You can retrieve all options as an array (be careful with performance...):
 
 ```php
 $options = Option::asArray();
 echo $options['siteurl'];
 ```
 
-Vous pouvez également spécifier les options spécifiques à récupérer :
+You can also specify specific options to retrieve:
 
 ```php
 $options = Option::asArray(['siteurl', 'home', 'blogname']);
@@ -167,55 +165,54 @@ echo $options['home'];
 
 ### Menus
 
-Pour récupérer un menu à partir de son alias, utiliser la syntaxe ci-dessous. Les éléments du menu seront retournés dans une variable `items` (c'est une collection d'objet de type `AmphiBee\Eloquent\Model\MenuItem`).
+To retrieve a menu from its slug, use the syntax below. Menu items will be returned in an `items` variable (it's a collection of `AmphiBee\Eloquent\Model\MenuItem` type objects).
 
-Les types de menu supportés actuellements sont : Pages, Posts, Custom Links et Categories.
+Currently supported menu types are: Pages, Posts, Custom Links and Categories.
 
-Une fois que vous avez le modèle `MenuItem`, si vous souhaitez utiliser l'instance d'origine (tels que Page ou Term, par exemple), appelez juste la méthode `MenuItem::instance()`. L'objet `MenuItem` est juste un post dont le `post_type` est égal à `nav_menu_item`:
+Once you have the `MenuItem` model, if you want to use the original instance (such as Page or Term, for example), just call the `MenuItem::instance()` method. The `MenuItem` object is just a post whose `post_type` equals `nav_menu_item`:
 
 ```php
 $menu = Menu::slug('primary')->first();
 
 foreach ($menu->items as $item) {
-    echo $item->instance()->title; // si c'est un Post
-    echo $item->instance()->name; // si c'est un Term
-    echo $item->instance()->link_text; // si c'est un Custom Link
+    echo $item->instance()->title; // if it's a Post
+    echo $item->instance()->name; // if it's a Term
+    echo $item->instance()->link_text; // if it's a Custom Link
 }
 ```
 
-La méthode `instance()` retournera les objets correspondant :
+The `instance()` method will return the corresponding objects:
 
-- `Post` instance pour un élément de menu de type `post`;
-- `Page` instance pour un élément de menu de type `page`;
-- `CustomLink` instance pour un élément de menu de type `custom`;
-- `Term` instance pour un élément de menu de type  `category`.
+- `Post` instance for a menu item of type `post`;
+- `Page` instance for a menu item of type `page`;
+- `CustomLink` instance for a menu item of type `custom`;
+- `Term` instance for a menu item of type `category`.
 
-#### Multi-levels Menus
+#### Multi-level Menus
 
-Pour gérer les menus à multi-niveaux, vous pouvez effectuer des itérations pour les placer au bon niveau, par exemple.
+To handle multi-level menus, you can iterate to place them at the correct level, for example.
 
-Vous pouvez utiliser la méthode `MenuItem::parent()` pour récupérer l'instance parent de l'élément du menu :
+You can use the `MenuItem::parent()` method to retrieve the parent instance of the menu item:
 
 ```php
 $items = Menu::slug('foo')->first()->items;
-$parent = $items->first()->parent(); // Post, Page, CustomLink ou Term (categorie)
+$parent = $items->first()->parent(); // Post, Page, CustomLink or Term (category)
 ```
 
-Pour grouper les menus par parent, vous pouvez utiliser la méthode `->groupBy()`dans la collection `$menu->items`, qui rassemblera les éléments selon leur parent (`$item->parent()->ID`).
+To group menus by parent, you can use the `->groupBy()` method on the `$menu->items` collection, which will gather items according to their parent (`$item->parent()->ID`).
 
-Pour en savoir plus sur la méthode `groupBy()`, [consulter la documentation de Eloquent](https://laravel.com/docs/5.4/collections#method-groupby).
+To learn more about the `groupBy()` method, [consult the Eloquent documentation](https://laravel.com/docs/5.4/collections#method-groupby).
 
+## Field Aliases
 
-## Alias de champs
-
-Le modèle `Post` support les alias, donc si vous inspectez un objet `Post` vous pourrez retrouvez des alias dans le tableau statique `$aliases` (tels que `title` pour `post_title` et `content` pour `post_content`.
+The `Post` model supports aliases, so if you inspect a `Post` object you can find aliases in the static `$aliases` array (such as `title` for `post_title` and `content` for `post_content`).
 
 ```php
 $post = Post::find(1);
 $post->title === $post->post_title; // true
 ```
 
-Vous pouvez étendre le modèle `Post` pour créer vos propres. Ajoutez juste vos alias dans le modèle étendu, il héritera automatiquement de ceux définis dans le modèle `Post`:
+You can extend the `Post` model to create your own. Just add your aliases in the extended model, it will automatically inherit those defined in the `Post` model:
 
 ```php
 class A extends \AmphiBee\Eloquent\Model\Post
@@ -227,12 +224,12 @@ class A extends \AmphiBee\Eloquent\Model\Post
 
 $a = A::find(1);
 echo $a->foo;
-echo $a->title; // récupéré depuis le modèle Post
+echo $a->title; // retrieved from the Post model
 ```
 
-## Scopes personnalisés
+## Custom Scopes
 
-Pour ordonner les modèles de type `Post` ou `User`, vous pouvez utiliser les scopes `newest()` et `oldest()`:
+To order `Post` or `User` type models, you can use the `newest()` and `oldest()` scopes:
 
 ```php
 $newest = Post::newest()->first();
@@ -241,17 +238,17 @@ $oldest = Post::oldest()->first();
 
 ## Pagination
 
-Pour paginer les résultats, utiliser simplement la méthode `paginate()` de Eloquent :
+To paginate results, simply use Eloquent's `paginate()` method:
 
 ```php
-// Affiche les posts avec 5 éléments par page
+// Display posts with 5 items per page
 $posts = Post::published()->paginate(5);
 foreach ($posts as $post) {
     // ...
 }
 ```
 
-Pour afficher les liens de paginations, utiliser la méthode `links()` :
+To display pagination links, use the `links()` method:
 
  ```php
  {{ $posts->links() }}
@@ -259,26 +256,26 @@ Pour afficher les liens de paginations, utiliser la méthode `links()` :
 
 ## Meta
 
-L'ensemble de modèles Eloquent intègre une gestion des méta-données de WordPress.
+All Eloquent models integrate WordPress metadata management.
 
-Voici un exemple pour récupérer des metas-données :
+Here's an example to retrieve metadata:
 
 ```php
-// Récupère un méta (ici 'link') depuis le modèle Post (on aurait pu utiliser un autre modèle comme User)
+// Retrieve a meta (here 'link') from the Post model (we could have used another model like User)
 $post = Post::find(31);
-echo $post->meta->link; // OU
+echo $post->meta->link; // OR
 echo $post->fields->link;
-echo $post->link; // OU
+echo $post->link; // OR
 ```
 
-Pour créer ou mettre à jour les metas données d'un utilisateur, utilisez juste les méthodes `saveMeta()` ou `saveField()`. Elles retourne un booléen à l'instar de la méthode `save()` de Eloquent.
+To create or update a user's metadata, just use the `saveMeta()` or `saveField()` methods. They return a boolean like Eloquent's `save()` method.
 
 ```php
 $post = Post::find(1);
 $post->saveMeta('username', 'amphibee');
 ```
 
-Il est possible de sauvegarder plusieurs metas données en un seul appel :
+It's possible to save multiple metadata in a single call:
 
 ```php
 $post = Post::find(1);
@@ -288,7 +285,7 @@ $post->saveMeta([
 ]);
 ```
 
-La libraire met également les méthodes `createMeta()` et `createField()`, qui fonctionnement comment les méthodes `saveX()`, mais elles ne sont utilisées que pour la création et retourne l'objet de type `PostMeta` créé par l'instance, au lieu d'un booléen.
+The library also provides the `createMeta()` and `createField()` methods, which work like the `saveX()` methods, but they are only used for creation and return the `PostMeta` type object created by the instance, instead of a boolean.
 
 ```php
 $post = Post::find(1);
@@ -296,58 +293,57 @@ $postMeta = $post->createMeta('foo', 'bar'); // instance of PostMeta class
 $trueOrFalse = $post->saveMeta('foo', 'baz'); // boolean
 ```
 
-## Requête d'un Post à partir d'un champs personnalisé (Meta)
+## Querying a Post from a custom field (Meta)
 
-Il existe différent moyen d'effectuer une requête à partir d'une méta-donnée (meta) en utilisant des scopes sur un modèle `Post` (ou tout autre modèle utilisant le trait `HasMetaFields`) :
+There are different ways to perform a query from metadata (meta) using scopes on a `Post` model (or any other model using the `HasMetaFields` trait):
 
-Pour vérifier qu'une méta-donnée existe, utiliser le scope `hasMeta()` :
+To check that metadata exists, use the `hasMeta()` scope:
 ```
-// Récupère le premier article ayant la méta "featured_article"
+// Retrieve the first article that has the "featured_article" meta
 $post = Post::published()->hasMeta('featured_article')->first();
 ```
 
-Si vous souhaiter cible une méta-donnée avec une valeur spécifique, il est possible d'utiliser le scope `hasMeta()` avec une valeur.
+If you want to target metadata with a specific value, it's possible to use the `hasMeta()` scope with a value.
 
 ```php
-// Récupère le premier article ayant une méta "username" et ayant pour valeur "amphibee"
+// Retrieve the first article that has a "username" meta and has the value "amphibee"
 $post = Post::published()->hasMeta('username', 'amphibee')->first();
 ```
 
-Il est également possible d'effectuer une requête en définissant plusieurs meta-données et plusieurs valeurs associées en passant un tableau de valeur au scope scope `hasMeta()` :
+It's also possible to perform a query by defining multiple metadata and multiple associated values by passing an array of values to the `hasMeta()` scope:
 
 ```php
 $post = Post::hasMeta(['username' => 'amphibee'])->first();
 $post = Post::hasMeta(['username' => 'amphibee', 'url' => 'amphibee.fr'])->first();
-// Ou juste en fournissant les clés de méta-données
+// Or just by providing the metadata keys
 $post = Post::hasMeta(['username', 'url'])->first();
 ```
 
-Si vous devez faire correspondre une chaîne de caractère insensible à la casse ou une correspondance avec des caractères génériques, vous pouvez utiliser le scope `hasMetaLike()` avec une valeur. Cela utilisera l'opérateur SQL `LIKE`, il est donc important d'utiliser l'opérateur générique '%'.
+If you need to match a case-insensitive string or a wildcard match, you can use the `hasMetaLike()` scope with a value. This will use the SQL `LIKE` operator, so it's important to use the wildcard operator '%'.
 
 ```php
 // Will match: 'B Gosselet', 'B BOSSELET', and 'b gosselet'.
 $post = Post::published()->hasMetaLike('author', 'B GOSSELET')->first();
 
-// En utilisant l'opérateur %, les résultats suivants seront retournés : 'N Leroy', 'N LEROY', 'n leroy', 'Nico Leroy' etc.
+// Using the % operator, the following results will be returned: 'N Leroy', 'N LEROY', 'n leroy', 'Nico Leroy' etc.
 $post = Post::published()->hasMetaLike('author', 'N%Leroy')->first();
 ```
 
-
 ## Images
 
-Récupération d'une image depuis un modèle `Post` ou `Page`.
+Retrieving an image from a `Post` or `Page` model.
 
 ```php
 $post = Post::find(1);
 
-// Récupère une instance de AmphiBee\Eloquent\Model\Meta\ThumbnailMeta.
+// Retrieve an instance of AmphiBee\Eloquent\Model\Meta\ThumbnailMeta.
 print_r($post->thumbnail);
 
-// Vous devez afficher l'instance de l'image pour récupérer l'url de l'image d'origine
+// You must display the image instance to retrieve the original image url
 echo $post->thumbnail;
 ```
 
-Pour récupérer une taille d'image spécifique, utiliser la méthode `->size()` sur l'objet et renseigner l'alias de taille dans la paramètre (ex. `thumbnail` ou `medium`). Si la miniature a été générée, la méthode retourne un objet avec les méta-données, à défaut, c'est l'url d'origine qui est renvoyée (comportement WordPress).
+To retrieve a specific image size, use the `->size()` method on the object and specify the size alias in the parameter (e.g. `thumbnail` or `medium`). If the thumbnail has been generated, the method returns an object with the metadata, otherwise, the original url is returned (WordPress behavior).
 
 ```php
 if ($post->thumbnail !== null) {
@@ -369,54 +365,54 @@ if ($post->thumbnail !== null) {
 
 ## Advanced Custom Fields
 
-La librairie met à disposant la quasi-totalité des champs ACF (à l'exception du champs Google Map). Il permet de récupérer les champs de manière optimale sans passer par le module ACF.
+The library provides almost all ACF fields (except the Google Map field). It allows retrieving fields optimally without going through the ACF module.
 
-### Utilisation basique
+### Basic Usage
 
-Pour récupérer une valeur d'un champs, il suffit d'initialiser un modèle de type `Post` et d'invoquer le champs personnalisé :
+To retrieve a field value, it's sufficient to initialize a `Post` type model and invoke the custom field:
 
 ```php
 $post = Post::find(1);
-echo $post->acf->website_url; // retourne l'url fournie dans un champs ayant pour clé website_url
+echo $post->acf->website_url; // returns the url provided in a field with the key website_url
 ```
 
 ### Performance
 
-Lorque l'on utilise `$post->acf->website_url`, des requètes additionnels sont exécutées pour récupérer le champs selon l'approche de ACF. Il est possible d'utiliser une méthode spécifique pour éviter ces requêtes additionnelles. Il suffit de renseigner le type de contenu personnalisé utilisé en tant que fonction :
+When using `$post->acf->website_url`, additional queries are executed to retrieve the field according to ACF's approach. It's possible to use a specific method to avoid these additional queries. It's sufficient to specify the custom content type used as a function:
 
  ```php
- // La méthode effectuant des requètes additionnelles
- echo $post->acf->author_username; // c'est un champs relatif à User
+ // The method that performs additional queries
+ echo $post->acf->author_username; // it's a field relative to User
 
- // Sans requète additionnelle
+ // Without additional query
  echo $post->acf->user('author_username');
  
- // Autres exemples sans requètes
+ // Other examples without queries
 echo $post->acf->text('text_field_name');
 echo $post->acf->boolean('boolean_field_name');
  ```
 
- > PS: La méthode doit être appelée au format camel case. Part eemple, pour le champs de type `date_picker` vous devez écrire `$post->acf->datePicker('fieldName')`. La libraire effectue la conversion de camel casse vers snake case pour vous.
+ > Note: The method must be called in camel case format. For example, for the `date_picker` field type you must write `$post->acf->datePicker('fieldName')`. The library performs the conversion from camel case to snake case for you.
 
-## Création de table
+## Table Creation
 
-Doc à venir
+Documentation coming soon
 
-## Requètes avancées
+## Advanced Queries
 
-La librairie étant compatible avec Eloquent, vous pouvez sans problème effectuer des requètes complexes sans tenir compte du contexte WordPress.
+The library being compatible with Eloquent, you can easily perform complex queries without considering the WordPress context.
 
-Par exemple, pour récupérer les clients dont l'age est supérieur à 40 ans :
+For example, to retrieve customers whose age is greater than 40:
 
 ```PHP
 $users = Capsule::table('customers')->where('age', '>', 40)->get();
 ```
 
-## Modèles personnalisés
+## Custom Models
 
-### Définition du modèle Eloquent
+### Eloquent Model Definition
 
-Pour ajouter vos propres méthode à un modèle existant, vous pouvez réaliser des "extends" de ce modèles. Par exemple, pour le modèle `User`, vous pourriez produire le code suivant :
+To add your own methods to an existing model, you can extend this model. For example, for the `User` model, you could produce the following code:
 
 ```php
 namespace App\Model;
@@ -430,7 +426,7 @@ class User extends BaseUser {
     }
 
     public function current() {
-        // fonctionnalité spécifique à l'utilisateur courant
+        // functionality specific to the current user
     }
 
     public function favorites() {
@@ -440,12 +436,12 @@ class User extends BaseUser {
 }
 ```
 
-Un autre exemple serait de définir une nouvelle taxonomie à un article, par exemple `country`
+Another example would be to define a new taxonomy for an article, for example `country`
 
 ```php
 namespace App\Model;
 
-user \AmphiBee\Eloquent\Model\Post as BasePost;
+use \AmphiBee\Eloquent\Model\Post as BasePost;
 
 class Post extends BasePost {
 
@@ -458,7 +454,7 @@ class Post extends BasePost {
 Post::with(['categories', 'countries'])->find(1);
 ```
 
-Pour accéder au modèle d'un nouveau type de contenu, voici un exemple de ce qui pourrait être proposé :
+To access the model of a new content type, here's an example of what could be proposed:
 
 ```php
 namespace App\Model;
@@ -476,15 +472,15 @@ CustomPostType::with(['categories', 'countries'])->find(1);
 
 ```
 
-### Requètes sur modèles personnalisés
+### Queries on Custom Models
 
-Il est également possible de travailler avec des types de contenus personnalisés. Vous pouvez utiliser la méthode `type(string)` ou créer vos propres classes :
+It's also possible to work with custom post types. You can use the `type(string)` method or create your own classes:
 
 ```php
-// en utilisatn la méthode type()
+// using the type() method
 $videos = Post::type('video')->status('publish')->get();
 
-// en définissant sa propore classe
+// defining your own class
 class Video extends AmphiBee\Eloquent\Model\Post
 {
     protected $postType = 'video';
@@ -492,12 +488,12 @@ class Video extends AmphiBee\Eloquent\Model\Post
 $videos = Video::status('publish')->get();
 ```
 
-En utilisant la méthode `type()`, l'objet retourné sera de type `AmphiBee\Eloquent\Model\Post`. En utilisant son propre modèle, cela permet d'aller plus loin dans les possibilités en pouvant y associer des méthodes et des propriétés personnalisés et en retournant le résultat en tant qu'objet `Video` par exemple.
+Using the `type()` method, the returned object will be of type `AmphiBee\Eloquent\Model\Post`. Using your own model, this allows going further in possibilities by being able to associate custom methods and properties and returning the result as a `Video` object for example.
 
-Type de contenu personnalisé et méta-données :
+Custom post type and metadata:
 
 ```php
-// Récupération de 3 élément d'un type de contenu personnalisé et en récupérant une méta-donnée (address)
+// Retrieve 3 elements of a custom post type and retrieve metadata (address)
 $stores = Post::type('store')->status('publish')->take(3)->get();
 foreach ($stores as $store) {
     $storeAddress = $store->address; // option 1
@@ -508,10 +504,8 @@ foreach ($stores as $store) {
 
 ## Shortcode
 
-Implémentation en cours
+Implementation in progress
 
+## Query Logs
 
-
-## Logs des requêtes
-
-La Capsule de connexion étant directement rattachée à `wpdb`, l'ensemble des requètes pourront être visualiser sur des outils de debugs tels que Query Monitor.
+The connection Capsule being directly linked to `wpdb`, all queries can be viewed in debug tools such as Query Monitor.
